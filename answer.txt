@@ -1,0 +1,298 @@
+一、C#
+1.
+var a = amountList.Select(s => s.Replace("-", "0")).Select(s => Convert.ToDouble(s) * 0.33).OrderByDescending(s => Convert.ToDouble(s)).ToArray();
+
+2.
+ public static string CardMask(string cradno)
+        {
+            string mask = "****_";
+            string smask = "";
+            var len = (cradno.Length / 4);
+            for (int i = 0; i < len; i++)
+            {
+                if(i == (len - 1))
+                {
+                    smask += cradno.Substring(cradno.Length - 4);
+                }
+                else {
+                    smask += mask;
+                }
+                
+            }
+
+
+
+            return smask;
+        }
+3.
+   public static string GenericFormat<T>(T input)
+        {
+            if (typeof(T) == typeof(DateTime))
+            {
+                DateTime dateInput = (DateTime)(object)input;
+                return dateInput.ToString("yyyy/MM/dd");
+            }
+            else
+            {
+                return input.ToString();
+            }
+        }
+4.
+4-1:查詢操作不會立即執行，直到該查詢的結果被需要時才執行
+4-2:需要查詢結果的時候
+
+5.
+在使用繼承時，C# 提供了幾個相關的修飾詞來調整繼承行為：
+
+- **`public`**: 允許從任何地方訪問基類的成員。
+- **`protected`**: 允許在派生類中訪問基類的成員，但不允許從外部訪問。
+- **`internal`**: 允許在同一組件中的類訪問基類的內部成員。
+- **`protected internal`**: 結合了 `protected` 和 `internal` 的特性，允許在同一組件中的類或派生類中訪問基類的成員。
+
+這些修飾詞允許開發人員控制繼承結構中成員的可訪問性，從而達到適當的封裝和類之間的良好交互。
+
+
+6.
+**`async`** 和 **`await`** 是用於異步程式設計的關鍵字，旨在簡化非同步操作的實作和管理。
+
+- **`async`**: 用於定義異步方法，指示該方法可能會在遇到 `await` 運算式時暫停，允許其他程式碼在其等待非同步操作完成時繼續執行。
+  
+- **`await`**: 用於在異步方法內部等待非同步操作完成。當 `await` 運算式遇到時，控制權會返回給呼叫者，該方法可以暫停執行，直到操作完成後再恢復執行。
+
+**優點**：
+- **提高應用程式的反應速度和效率**：避免阻塞主執行緒，使程式能夠更有效地處理大量的非同步操作。
+- **簡化非同步程式碼的撰寫**：使得異步程式碼的撰寫和管理更為直觀和清晰。
+
+**缺點**：
+- **學習曲線**：對於初學者來說，理解和正確使用 `async` 和 `await` 可能需要一些時間和實踐。
+- **潛在的性能開銷**：使用不當可能導致過度異步化，增加系統的上下文切換和開銷。
+
+
+
+
+
+7.Box2
+二、 DB
+1-1:
+select e.ClassID 班級,e.ExerName 主考官姓名,count(stdID) 學生數
+from Examiner e left join Students s on  e.ClassID = s.ClassID
+group by e.ClassID,e.ExerName
+
+1-2:
+with stdtotalscore as(
+select e.StdID,s.StdName,s.ClassID,SUM(CAST(Score as int)) totalScore
+from Exam e inner join Students s on e.StdID = s.StdID
+where ExamType = 'FinalExam '
+group by e.StdID,s.ClassID,s.StdName),
+maxscoreinclass as(
+select MAX(totalScore) maxScore
+from stdtotalscore 
+group by ClassID
+)
+select sc.classID 班級,sc.StdName 學生名,m.maxScore 分數
+from stdtotalscore sc inner join  maxscoreinclass m on sc.totalScore = m.maxScore
+
+
+2.
+**使用預存程序的好處和缺點：**
+
+**好處：**
+- **提升效能**：預存程序會被資料庫編譯和儲存，可以減少每次查詢的解析和編譯時間，從而提高執行效率。
+- **減少SQL注入攻擊**：使用參數化的預存程序可以有效預防SQL注入攻擊，增強安全性。
+- **提高代碼的可讀性和維護性**：將查詢邏輯集中在資料庫中，使得應用程式的代碼更清晰和易於維護。
+
+**缺點：**
+- **難以管理和部署**：在某些情況下，預存程序的管理和部署可能不如直接在應用程式中撰寫SQL便捷。
+- **依賴於特定資料庫平台**：不同的資料庫平台對於預存程序的支持和語法有所不同，這可能會造成平台鎖定。
+
+**使用ORM的好處和缺點：**
+
+**好處：**
+- **抽象資料庫操作**：ORM（Object-Relational Mapping）可以抽象出資料庫操作，使得開發者可以使用面向物件的方式來處理資料，減少直接操作SQL的需要。
+- **提升生產力**：ORM工具通常提供了一些便利功能，如緩存、資料庫跨平台支持等，可以節省開發時間。
+- **減少代碼重複**：ORM可以幫助開發者減少重複的CRUD（新增、讀取、更新、刪除）代碼。
+
+**缺點：**
+- **學習曲線**：初學者需要時間來熟悉ORM的使用方式和內部機制。
+- **性能問題**：有時候ORM生成的SQL可能不是最優化的，需要開發者進行調整和優化。
+- **複雜性**：在處理較複雜的資料庫結構和查詢時，ORM可能會讓事情變得更複雜，難以理解和調試。
+
+
+
+3.
+在設計資料表時，我們會注意以下幾個主要的事項：
+
+- **資料正規化**：確保資料表設計符合正規化原則，以減少資料重複和增強資料庫的一致性和效能。這包括將資料表拆分成合理的結構，避免冗余和異常。
+
+- **主鍵設計**：選擇適當的主鍵來唯一標識每個資料表的記錄，這有助於快速查找和關聯不同資料表中的資料。
+
+- **索引策略**：對於經常使用於查詢條件的欄位，考慮建立索引以提高查詢效率，但也要避免過度索引造成的性能下降和空間浪費。
+
+- **外鍵設計**：確保使用外鍵來建立資料表之間的關聯，保證資料完整性和一致性。
+
+- **欄位類型**：選擇適當的欄位類型來存儲資料，例如整數、浮點數、日期時間等，以及欄位長度的設置，避免浪費資料庫空間和提高資料存取效率。
+
+- **資料表命名規範**：採用一致且具有描述性的命名規範，使資料表易於理解和管理。
+
+
+
+
+4.
+如果執行計畫顯示Table Scan是導致執行緩慢的原因，可以考慮以下幾個優化方法：
+
+- **建立索引**：確保查詢中使用的篩選條件欄位上建立了適當的索引。索引可以幫助資料庫引擎快速定位到符合條件的資料，而不是全表掃描。
+
+- **重新撰寫查詢**：有時候可以通過重新組織查詢來利用索引，或者引入更有效的查詢計劃來減少或避免全表掃描。例如，使用更具選擇性的篩選條件。
+
+- **統計資訊更新**：確保資料庫中的統計資訊是最新的。統計資訊幫助資料庫引擎做出更聰明的執行計畫選擇。
+
+- **使用提示**：某些情況下可以使用查詢提示（Query Hints）來指導資料庫引擎使用特定的索引或查詢計畫。
+
+- **資料庫結構調整**：有時候需要考慮資料庫結構的調整，例如正規化或反正規化，以更有效地支援特定的查詢需求。
+
+綜合使用這些方法可以幫助優化SQL查詢，減少或消除全表掃描，從而提升查詢效能和系統整體性能。
+
+
+5.
+A
+
+三、ASP.NET
+### 1. ASP.NET MVC中的Filter是什麼? 請試著列舉你所知道的Filter，並舉例說明有什麼用處
+
+在 ASP.NET MVC 中，Filter 是一種機制，允許開發者在動作方法執行前、執行後、或執行中干預和修改請求和回應。主要的 Filter 包括：
+
+- **Authorization Filter**: 用於驗證使用者是否有權存取某個動作方法或控制器。例如 `[Authorize]` Attribute 就是一種 Authorization Filter。
+
+- **Action Filter**: 在執行動作方法前或後進行處理。常見的有 `OnActionExecuting` 和 `OnActionExecuted` 方法。可以用來記錄日誌、執行某些前置或後置處理等。
+
+- **Result Filter**: 在動作方法返回ActionResult之前或之後進行處理。類似於 Action Filter，但針對的是 ActionResult。
+
+- **Exception Filter**: 用於處理在動作方法或其結果中拋出的異常。可以攔截異常、記錄異常資訊並提供客製化的錯誤頁面。
+
+- **Resource Filter**: 在執行動作方法前和結果執行前，在處理請求之前和之後執行。可以用來進行資源清理或準備工作。
+
+**例子：**
+
+例如，使用 Action Filter 可以實現日誌記錄功能，如下：
+
+```csharp
+public class LogActionFilter : IActionFilter {
+    public void OnActionExecuting(ActionExecutingContext context)
+    {
+        // 在執行動作方法之前記錄日誌
+        string controller = context.RouteData.Values["controller"].ToString();
+        string action = context.RouteData.Values["action"].ToString();
+        string logMessage = $"Executing action {action} in controller {controller}";
+        Debug.WriteLine(logMessage);
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
+        // 在執行動作方法之後記錄日誌
+        string controller = context.RouteData.Values["controller"].ToString();
+        string action = context.RouteData.Values["action"].ToString();
+        string logMessage = $"Executed action {action} in controller {controller}";
+        Debug.WriteLine(logMessage);
+    }
+}
+```
+
+然後將此 Action Filter 應用於控制器或動作方法上，即可在執行相應的動作前後記錄日誌。
+
+### 2. 如果要在ASP.NET MVC或Web API中記下每個request的log資訊，你會怎麼做? 同樣的機制在ASP.NET Core怎麼做?
+
+**在 ASP.NET MVC 或 Web API 中記錄每個 request 的 log 資訊**：
+
+可以使用 Action Filter 或 Middleware 來實現：
+
+- **使用 Action Filter**：如前述的 LogActionFilter 可以在 OnActionExecuting 和 OnActionExecuted 方法中記錄日誌。
+
+- **使用 Middleware**：在 ASP.NET Core 中，可以編寫一個自定義的 Middleware 來處理每個 request。Middleware 可以直接處理 HTTP 請求並記錄資訊。
+
+```csharp
+public class RequestLoggingMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public RequestLoggingMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        // 記錄 request 的相關資訊
+        string path = context.Request.Path;
+        string method = context.Request.Method;
+        string logMessage = $"{method}: {path}";
+        Debug.WriteLine(logMessage);
+
+        // 呼叫下一個 middleware 或終端點
+        await _next(context);
+    }
+}
+```
+
+在 Startup.cs 中註冊和使用 Middleware：
+
+```csharp
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+    // 其他設定...
+
+    // 加入自定義 Middleware
+    app.UseMiddleware<RequestLoggingMiddleware>();
+
+    // 其他 Middleware 和終端點設定...
+}
+```
+
+### 3. 網站實做快取時有哪幾種方式, 請列舉及說明
+
+在網站實做快取時，常見的方式包括：
+
+- **Client-side caching**: 通過設置 HTTP Response 的 Cache-Control 和 Expires Header，在用戶端（瀏覽器）進行快取。這樣可以減少伺服器的負載，提升頁面載入速度。
+
+- **Server-side caching**: 將動態生成的資料或頁面內容快取於伺服器端的記憶體中，下次相同請求可以直接返回快取結果，而不用重新計算。這可以使用記憶體快取、分佈式快取（如 Redis）、本地檔案系統快取等方式實現。
+
+- **Output caching**: ASP.NET MVC 和 ASP.NET Core 中都支持對整個動作方法或部分視圖的輸出進行快取。這可以通過 OutputCacheAttribute 或 ResponseCacheAttribute 實現，適用於不經常更改的靜態內容。
+
+- **Data caching**: 將查詢資料庫或其他外部資源的結果快取，以減少資料存取的成本和時間。這可以透過 ORM 提供的快取機制或手動實現。
+
+### 4. 在 ASP.NET Core 中，原本 ASP.NET 的程式進入點 Application_Start() 由什麼取代?
+
+在 ASP.NET Core 中，原本的全局應用程式類（如 Global.asax）和 Application_Start() 方法被中介軟體（Middleware）和 Startup 類的 Configure 方法取代。
+
+- **Startup 類**：在 ASP.NET Core 的主要進入點是 Startup 類。這個類負責配置應用程式的服務和中介軟體管道。
+
+- **Configure 方法**：在 Startup 類中，Configure 方法用於配置 HTTP request processing pipeline（HTTP 請求處理管道）。它接收一個 IApplicationBuilder 實例作為參數，可以用來註冊中介軟體和設定路由等。
+
+```csharp
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // 配置服務
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        // 配置中介軟體管道
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        
+        app.UseRouting();
+
+        // 其他中介軟體設定...
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            // 其他端點設定...
+        });
+    }
+}
+```
+
+這種新的設計提供了更靈活和模組化的方式來配置應用程式，並且更符合現代化的開發實踐。
